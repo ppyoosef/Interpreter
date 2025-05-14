@@ -1,0 +1,31 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build Calc App",
+      "type": "shell",
+      "command": "g++",
+      "args": [
+      "src/main.cpp",
+      "src/core/lexer.cpp",
+      "src/core/parser.cpp",
+      "src/core/ast.h",
+      "-o",
+      "build/minlang.exe",
+      "-I${workspaceFolder}/include",
+      "-L${workspaceFolder}/lib",
+      ],
+      "group": {
+      "kind": "build",
+      "isDefault": true
+      },
+      "problemMatcher": ["$gcc"],
+      "options": {
+      "shell": {
+        "executable": "C:\\Windows\\System32\\cmd.exe",
+        "args": ["/d", "/c"]
+      }
+      }
+    }
+  ]
+}
