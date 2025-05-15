@@ -46,7 +46,8 @@ std::unique_ptr<Expr> Parser::term() {
 std::unique_ptr<Expr> Parser::expression() {
     auto left = term();
     while (current.type == TokenType::Plus || current.type == TokenType::Minus ||
-           current.type == TokenType::Gt || current.type == TokenType::Lt) {
+           current.type == TokenType::Gt || current.type == TokenType::Lt || current.type == TokenType::Lte || current.type == TokenType::Gte 
+           || current.type == TokenType::EqualEqual || current.type == TokenType::NotEqual) {
         TokenType op = current.type;
         advance();
         auto right = term();
@@ -68,9 +69,20 @@ std::unique_ptr<Statement> Parser::statement() {
         return std::make_unique<Print>(std::move(expr));
     } else if (current.type == TokenType::If) {
         return parseIf();
+    } else if (current.type == TokenType::While) {
+        return parseWhile();
     }
 
     throw std::runtime_error("Invalid statement");
+}
+
+std::unique_ptr<WhileLoop> Parser::parseWhile() {
+    advance(); //skip while
+    auto cond = expression();
+    auto body = parseBlock();
+    auto whileBlock = std::make_unique<WhileLoop>(std::move(cond), std::move(body));
+
+    return whileBlock;
 }
 
 std::unique_ptr<IfBlock> Parser::parseIf() {
@@ -98,4 +110,13 @@ std::vector<std::unique_ptr<Statement>> Parser::parse() {
         statements.push_back(statement());
     }
     return statements;
+}
+
+std::vector<std::unique_ptr<Statement>> Parser::parseBlock() {
+    std::vector<std::unique_ptr<Statement>> block;
+    while (current.type != TokenType::End) {
+        block.push_back(statement());
+    }
+    expect(TokenType::End);
+    return block;
 }

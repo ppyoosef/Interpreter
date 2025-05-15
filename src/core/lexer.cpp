@@ -1,6 +1,7 @@
 #include "lexer.h"
 #include <cctype>
 #include <stdexcept>
+#include <iostream>
 
 Lexer::Lexer(const std::string& src) : src(src), pos(0), current(src[0]) {}
 
@@ -15,6 +16,14 @@ void Lexer::skipWhitespace() {
     while (isspace(current)) advance();
 }
 
+char Lexer::peek() const {
+    return pos < src.size() ? src[pos] : '\0';
+}
+
+char Lexer::get() {
+    return pos < src.size() ? src[pos++] : '\0';
+}
+
 Token Lexer::identifier() {
     std::string value;
     while (isalnum(current) || current == '_') {
@@ -25,6 +34,7 @@ Token Lexer::identifier() {
     if (value == "if") return {TokenType::If, value};
     if (value == "else") return {TokenType::Else, value};
     if (value == "end") return {TokenType::End, value};
+    if (value == "while") return {TokenType::While, value};
     return {TokenType::Identifier, value};
 }
 
@@ -46,18 +56,52 @@ Token Lexer::nextToken() {
 
     char ch = current;
     advance();
-    switch (ch) {
-        case '=': return {TokenType::Assign, "="};
-        case '+': return {TokenType::Plus, "+"};
-        case '-': return {TokenType::Minus, "-"};
-        case '*': return {TokenType::Mul, "*"};
-        case '/': return {TokenType::Div, "/"};
-        case '(': return {TokenType::LParen, "("};
-        case ')': return {TokenType::RParen, ")"};
-        case '>': return {TokenType::Gt, ">"};
-        case '<': return {TokenType::Lt, "<"};
-        case ';': return {TokenType::Semi, ";"};
+
+    if (ch == '>') {
+        if (current == '=') {
+            advance();
+            return {TokenType::Gte, ">="};
+        }
+
+        return {TokenType::Gt, ">"};
     }
 
-    throw std::runtime_error("Unknown character: " + std::string(1, ch));
+    if (ch == '<') {
+        if (current == '=') {
+            advance();
+            return {TokenType::Lte, "<="};
+        }
+
+        return {TokenType::Lt, "<"};
+    }
+
+    if (ch == '=') {
+        if (current == '=') {
+            advance();
+            return {TokenType::EqualEqual, "=="};
+        }
+
+        return {TokenType::Assign, "="};
+    }
+
+    if (ch == '!') {
+        if (current == '=') {
+            advance();
+            return {TokenType::NotEqual, "!="};
+        }
+
+        throw std::runtime_error("Unexpected character after '!'");
+    }
+
+
+    if (ch == '+') return {TokenType::Plus, "="};
+    if (ch == '-') return {TokenType::Minus, "-"};
+    if (ch == '*') return {TokenType::Mul, "*"};
+    if (ch == '/') return {TokenType::Div, "/"};
+    if (ch == '(') return {TokenType::LParen, "()"};
+    if (ch == ')') return {TokenType::RParen, ")"};
+    // if (ch == '=') return {TokenType::Assign, "="};
+    if (ch == '\n') return {TokenType::Newline, "\n"};
+
+    throw std::runtime_error("Unexpected character");
 }

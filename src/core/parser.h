@@ -19,5 +19,9 @@ private:
     std::unique_ptr<Expr> factor();
     std::unique_ptr<Statement> statement();
     std::unique_ptr<IfBlock> parseIf();
+    std::unique_ptr<Expr> parseStatement();
+    std::unique_ptr<WhileLoop> parseWhile();
+    std::vector<std::unique_ptr<Statement>> parseBlock();
+
 };
 #endif

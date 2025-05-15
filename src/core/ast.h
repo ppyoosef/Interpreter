@@ -41,6 +41,10 @@ struct BinOp : Expr {
             case TokenType::Div: return l / r;
             case TokenType::Gt: return l > r;
             case TokenType::Lt: return l < r;
+            case TokenType::Lte: return l <= r;
+            case TokenType::Gte: return l >= r;
+            case TokenType::EqualEqual: return l == r;
+            case TokenType::NotEqual: return l != r;
             default: throw std::runtime_error("Unsupported binary op");
         }
     }
@@ -79,6 +83,22 @@ struct IfBlock : Statement {
     void execute(std::unordered_map<std::string, int>& env) override {
         auto& branch = condition->eval(env) ? thenBranch : elseBranch;
         for (auto& stmt : branch) stmt->execute(env);
+    }
+};
+
+struct WhileLoop : Statement {
+    std::unique_ptr<Expr> condition;
+    std::vector<std::unique_ptr<Statement>> body;
+
+    WhileLoop(std::unique_ptr<Expr> cond, std::vector<std::unique_ptr<Statement>> b)
+        : condition(std::move(cond)), body(std::move(b)) {}
+
+    void execute(std::unordered_map<std::string, int>& env) override {
+        while (condition->eval(env)) {
+            for (auto& stmt : body) {
+                stmt->execute(env);
+            }
+        }
     }
 };
 

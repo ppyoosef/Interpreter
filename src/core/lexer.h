@@ -6,8 +6,8 @@
 enum class TokenType {
     Identifier, Number, Assign, Plus, Minus, Mul, Div,
     LParen, RParen, Print, If, Else, End,
-    Gt, Lt, Eq, Neq, Gte, Lte,
-    Semi, Eof
+    Gt, Lt, Gte, Lte, NotEqual, EqualEqual,
+    Semi, Eof, While, Newline
 };
 
 struct Token {
@@ -25,6 +25,8 @@ private:
     size_t pos;
     char current;
 
+    char peek() const;
+    char get();
     void advance();
     void skipWhitespace();
     Token identifier();
